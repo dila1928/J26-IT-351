@@ -1,0 +1,312 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:bell_pepper_app/constants/app_colors.dart';
+import 'package:bell_pepper_app/constants/app_strings.dart';
+import 'package:bell_pepper_app/constants/app_text_styles.dart';
+import 'package:bell_pepper_app/features/auth/ui/register_screen.dart';
+import 'package:bell_pepper_app/features/home/ui/home_screen.dart';
+import 'package:bell_pepper_app/services/auth_service.dart';
+import 'package:bell_pepper_app/services/credential_store.dart';
+import 'package:bell_pepper_app/ui/widgets/app_text_field.dart';
+import 'package:bell_pepper_app/ui/widgets/brand_header.dart';
+import 'package:bell_pepper_app/ui/widgets/glow_circle.dart';
+import 'package:bell_pepper_app/ui/widgets/primary_button.dart';
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _authService = AuthService();
+  final _credentialStore = CredentialStore();
+
+  bool _isSigningIn = false;
+  bool _rememberMe = false;
+
+  bool get _isBusy => _isSigningIn;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRememberedCredentials();
+  }
+
+  Future<void> _loadRememberedCredentials() async {
+    final saved = await _credentialStore.read();
+    if (saved == null || !mounted) return;
+    setState(() {
+      _emailController.text = saved.email;
+      _passwordController.text = saved.password;
+      _rememberMe = true;
+    });
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _goToHome() {
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+      (route) => false,
+    );
+  }
+
+  void _goToRegister() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const RegisterScreen()),
+    );
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _handleLogIn() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSigningIn = true);
+    try {
+      await _authService.signInWithEmail(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      if (_rememberMe) {
+        await _credentialStore.save(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+      } else {
+        await _credentialStore.clear();
+      }
+      _goToHome();
+    } on FirebaseAuthException catch (e) {
+      _showError(e.message ?? 'Could not sign in. Please try again.');
+    } finally {
+      if (mounted) setState(() => _isSigningIn = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: Stack(
+        children: [
+          // Soft decorative glow so the screen reads as branded, not blank.
+          Positioned(
+            top: -90,
+            right: -70,
+            child: GlowCircle(
+              size: 240,
+              colors: [
+                AppColors.lightGreen.withValues(alpha: 0.45),
+                AppColors.primaryGreen.withValues(alpha: 0.05),
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: -110,
+            left: -90,
+            child: GlowCircle(
+              size: 260,
+              colors: [
+                AppColors.primaryGreen.withValues(alpha: 0.12),
+                AppColors.lightGreen.withValues(alpha: 0.0),
+              ],
+            ),
+          ),
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Center(
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const BrandHeader(),
+                            const SizedBox(height: 32),
+                            Container(
+                              padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+                              decoration: BoxDecoration(
+                                color: AppColors.cardBackground,
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.primaryGreen.withValues(alpha: 0.1),
+                                    blurRadius: 24,
+                                    offset: const Offset(0, 10),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    AppStrings.welcomeBack,
+                                    style: AppTextStyles.screenTitle,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    AppStrings.signInSubtitle,
+                                    style: AppTextStyles.screenSubtitle,
+                                  ),
+                                  const SizedBox(height: 26),
+                                  AppTextField(
+                                    label: AppStrings.emailLabel,
+                                    hint: AppStrings.emailHint,
+                                    controller: _emailController,
+                                    keyboardType: TextInputType.emailAddress,
+                                    textInputAction: TextInputAction.next,
+                                    validator: _validateEmail,
+                                    prefixIcon: Icons.mail_outline,
+                                  ),
+                                  const SizedBox(height: 18),
+                                  AppTextField(
+                                    label: AppStrings.passwordLabel,
+                                    hint: AppStrings.passwordHint,
+                                    controller: _passwordController,
+                                    obscureText: true,
+                                    textInputAction: TextInputAction.done,
+                                    validator: _validatePassword,
+                                    prefixIcon: Icons.lock_outline,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      InkWell(
+                                        borderRadius: BorderRadius.circular(8),
+                                        onTap: _isBusy
+                                            ? null
+                                            : () => setState(
+                                                () => _rememberMe = !_rememberMe,
+                                              ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 4,
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child: Checkbox(
+                                                  value: _rememberMe,
+                                                  onChanged: _isBusy
+                                                      ? null
+                                                      : (value) => setState(
+                                                          () => _rememberMe =
+                                                              value ?? false,
+                                                        ),
+                                                  activeColor: AppColors.primaryGreen,
+                                                  materialTapTargetSize:
+                                                      MaterialTapTargetSize.shrinkWrap,
+                                                  visualDensity: VisualDensity.compact,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(4),
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              const Text(
+                                                AppStrings.rememberMe,
+                                                style: AppTextStyles.loginPrompt,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        // TODO: navigate to password reset once that flow exists.
+                                        onPressed: _isBusy ? null : () {},
+                                        style: TextButton.styleFrom(
+                                          padding: EdgeInsets.zero,
+                                          minimumSize: const Size(0, 0),
+                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        ),
+                                        child: const Text(
+                                          AppStrings.forgotPassword,
+                                          style: AppTextStyles.linkLabel,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 22),
+                                  PrimaryButton(
+                                    label: AppStrings.logIn,
+                                    isLoading: _isSigningIn,
+                                    onPressed: _isBusy ? null : _handleLogIn,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Center(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    AppStrings.signUpPrompt,
+                                    style: AppTextStyles.loginPrompt,
+                                  ),
+                                  GestureDetector(
+                                    onTap: _isBusy ? null : _goToRegister,
+                                    child: const Text(
+                                      AppStrings.createAccount,
+                                      style: AppTextStyles.loginLink,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String? _validateEmail(String? value) {
+    final email = value?.trim() ?? '';
+    if (email.isEmpty) return AppStrings.emailRequired;
+    final emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+    if (!emailPattern.hasMatch(email)) return AppStrings.emailInvalid;
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    final password = value ?? '';
+    if (password.isEmpty) return AppStrings.passwordRequired;
+    if (password.length < 6) return AppStrings.passwordTooShort;
+    return null;
+  }
+}
