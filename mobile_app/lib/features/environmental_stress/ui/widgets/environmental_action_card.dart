@@ -25,6 +25,8 @@ class EnvironmentalActionCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(20),
+
+      // Handles card tap interactions and executes the selected action.
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: onTap,
