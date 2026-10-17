@@ -53,6 +53,7 @@ class ReadingInputCard extends StatelessWidget {
           const SizedBox(width: 10),
           SizedBox(
             width: 120,
+            // Captures numeric greenhouse sensor readings with the relevant measurement unit.
             child: TextField(
               controller: controller,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
