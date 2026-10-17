@@ -188,4 +188,4 @@ class EnvironmentCheckResultScreen extends StatelessWidget {
         ? number.toInt().toString()
         : number.toString();
   }
-}
+} 
