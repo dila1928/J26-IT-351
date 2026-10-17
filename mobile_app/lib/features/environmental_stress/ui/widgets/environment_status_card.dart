@@ -23,6 +23,8 @@ class EnvironmentStatusCard extends StatelessWidget {
   final String status;
   final String? adjustmentDirection;
 
+  // Select the appropriate color for each environmental status.
+  // High/Low: orange, Slightly High/Low: yellow, Normal: green.
   Color get _statusColor {
     switch (status) {
       case 'High':
