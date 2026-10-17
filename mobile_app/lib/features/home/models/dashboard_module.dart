@@ -23,4 +23,4 @@ class DashboardModule {
   /// Photo thumbnail shown instead of [icon] when set (e.g. a real leaf or
   /// thermal capture rather than a generic glyph).
   final String? imageAsset;
-}
+} 
