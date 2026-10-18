@@ -8,6 +8,7 @@ step. Gemini only rephrases the already-decided rule-based text in plain
 language; it never decides the action/priority/severity itself. If
 GEMINI_API_KEY is not set, or the API call fails for any reason, this falls
 back to the rule-based why_this_action text untouched.
+
 """
 
 from __future__ import annotations
