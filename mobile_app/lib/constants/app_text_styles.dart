@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:bell_pepper_app/constants/app_colors.dart';
 
 /// Shared text styles. Screens should reuse these instead of inlining
-/// TextStyle(...) so typography stays consistent across the app.
+/// TextStyle(...) so typography stays consistent across the App.
 class AppTextStyles {
   AppTextStyles._();
 
