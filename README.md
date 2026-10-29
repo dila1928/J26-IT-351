@@ -1,4 +1,4 @@
-# 🌶️ PepperCare AI
+#  PepperCare AI
 
 ### A multimodal AI framework for understanding bell pepper plant stress — and deciding what to do next
 
@@ -12,7 +12,7 @@
 
 ---
 
-## 👀 The entire research, at a glance
+##  The entire research, at a glance
 
 | The question a farmer asks | What PepperCare AI uses | Research component | What the farmer receives |
 |---|---|---|---|
@@ -31,7 +31,7 @@ The system is **decision support**, not an autonomous greenhouse controller or a
 
 ---
 
-## 🌱 Why this research matters
+##  Why this research matters
 
 Bell pepper plants can be affected by **water deficit, nutrient deficiency, insect pests, temperature stress and other unsuitable greenhouse conditions**. Different stresses can produce similar symptoms, while early physiological changes may occur before obvious visual damage.
 
@@ -43,7 +43,7 @@ In practice, farmers may have to interpret plant appearance, temperature conditi
 
 PepperCare AI investigates an integrated approach to these challenges rather than treating classification, prediction and recovery as unrelated tasks.
 
-## 🧩 How all four components work together
+##  How all four components work together
 
 ```mermaid
 flowchart TD
@@ -73,7 +73,7 @@ flowchart TD
 
 **Important architecture distinction:** The first three components generate **different kinds of evidence**. Component 4 combines the available evidence for recovery decision support. This does **not** imply that an unverified end-to-end multimodal neural network has already been trained.
 
-## 🚶 A real-world user journey
+##  A real-world user journey
 
 Imagine a greenhouse operator noticing a bell pepper plant that looks slightly wilted.
 
@@ -91,7 +91,7 @@ Imagine a greenhouse operator noticing a bell pepper plant that looks slightly w
 
 ---
 
-## 🔬 The four research components
+##  The four research components
 
 ### 01 · AI-Based RGB Bell Pepper Plant Stress Detection
 
@@ -195,7 +195,7 @@ Imagine a greenhouse operator noticing a bell pepper plant that looks slightly w
 
 ---
 
-## ✨ What is novel about the combined research?
+##  What is novel about the combined research?
 
 | Layer | Individual research contribution | Value to the overall system |
 |---|---|---|
@@ -207,7 +207,7 @@ Imagine a greenhouse operator noticing a bell pepper plant that looks slightly w
 
 These are the **proposed research contributions**. Their novelty and effectiveness must be substantiated through literature comparison and experimental evaluation; this README does not claim that no similar systems exist.
 
-## 📱 What the farmer sees in the app
+##  What the farmer sees in the app
 
 The **PepperCare AI** mobile experience is intended to make the research understandable without requiring the user to know how each AI model works.
 
@@ -228,7 +228,7 @@ The **PepperCare AI** mobile experience is intended to make the research underst
 
 ---
 
-## 🏗️ Proposed application architecture
+##  Proposed application architecture
 
 The recommended prototype architecture is a **modular monolith**: **one Flutter mobile app**, **one FastAPI backend**, and **four clearly separated research modules**. This is easier to integrate and evaluate during a final-year research project while preserving the option to split modules into microservices later.
 
@@ -323,7 +323,7 @@ Each component should produce a **clear structured result**, with fields that th
 
 ---
 
-## 📊 How the research will be evaluated
+##  How the research will be evaluated
 
 The project is not complete merely because screens display predictions. Each component requires its own scientific validation, followed by system-level evaluation.
 
@@ -349,7 +349,7 @@ The project is not complete merely because screens display predictions. Each com
 
 **No performance numbers are claimed in this README** until they are supported by reproducible experiments.
 
-## 🧑‍🔬 Research ownership
+##  Research ownership
 
 | Member | Student ID | Research responsibility |
 |---|---|---|
@@ -360,7 +360,7 @@ The project is not complete merely because screens display predictions. Each com
 
 All four components contribute to the **same integrated research framework**. Independent model evaluation and combined end-to-end testing are both necessary.
 
-## 🛣️ Research-to-prototype roadmap
+##  Research-to-prototype roadmap
 
 - [ ] Consolidate research papers, agronomic references and verified datasets.
 - [ ] Finalize class definitions, stress/temperature reference criteria and evaluation protocols.
@@ -373,7 +373,7 @@ All four components contribute to the **same integrated research framework**. In
 
 **Status note:** These are milestones, **not a claim that all items are outstanding**. Progress should be marked against actual code, models, datasets, evaluation reports and deployed services before publishing a definitive implementation status.
 
-## ❓ Frequently asked questions
+##  Frequently asked questions
 
 **Is this four separate apps?**  
 No. The research consists of four **separate technical contributions** designed to appear as **one coherent PepperCare AI application**.
@@ -395,7 +395,7 @@ No. Confidence, evidence and limitations should be communicated clearly. The far
 
 ---
 
-## 🎯 The final vision
+##  The final vision
 
 > **One plant. Multiple sources of evidence. One understandable decision-support experience.**
 >
