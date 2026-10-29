@@ -19,19 +19,15 @@ It provides two functions:
     growth-stage-based reference ranges and reports whether each factor
     is within or outside its range.
 2.  **Future stress prediction:** uses saved machine-learning models to
-    estimate stress type, risk level, and risk score for 30- and
-    60-minute horizons.
+    estimate stress type, risk level, and risk score for 30 and
+    60 minute horizons.
 
-> **Prototype limitation:** the current model uses derived/synthetic
-> prototype labels rather than verified plant-stress observations from a
-> real greenhouse. Results should not be treated as confirmed real-world
-> plant-stress diagnoses.
 
 ## Objectives
 
 -   Assess current environmental readings for bell pepper plants.
 -   Consider plant growth stage when checking environmental conditions.
--   Predict short-term stress type, risk level, and risk score.
+-   Predict short term stress type, risk level, and risk score.
 -   Explain the main environmental factors contributing to predicted
     risk.
 -   Display results in a mobile interface and save them for later
@@ -43,10 +39,10 @@ It provides two functions:
 
 -   **Manual mode:** users enter environmental readings.
 -   **Auto mode:** a virtual sensor replay provides simulated readings
-    from a dataset; it is not a live physical IoT sensor feed.
+    from a dataset.
 -   **Current environment check:** compares readings with reference
     ranges.
--   **Future prediction:** returns separate 30-minute and 60-minute
+-   **Future prediction:** returns separate 30 minute and 60 minute
     predictions.
 -   **Contributing factors:** identifies environmental factors
     associated with the result.
@@ -76,66 +72,30 @@ flowchart TD
     N["Virtual Sensor Replay Dataset"] --> C
 ```
 
-  -----------------------------------------------------------------------
-  Layer                               Responsibility
-  ----------------------------------- -----------------------------------
-  Presentation                        Flutter screens for entering
-                                      readings and viewing results.
+| Layer | Responsibility |
+|---|---|
+| Presentation | Flutter screens for entering readings and viewing results. |
+| API/service | FastAPI receives and validates requests and returns JSON responses. |
+| Current assessment | Compares readings with growth-stage-based reference ranges. |
+| ML prediction | Predicts stress type, risk level, and risk score for 30 and 60 minutes. |
+| Storage | Firestore stores user-specific readings and prediction history; model artifacts are stored separately. |
 
-  API/service                         FastAPI receives and validates
-                                      requests and returns JSON
-                                      responses.
-
-  Current assessment                  Compares readings with
-                                      growth-stage-based reference
-                                      ranges.
-
-  ML prediction                       Predicts stress type, risk level,
-                                      and risk score for 30 and 60
-                                      minutes.
-
-  Storage                             Firestore stores user-specific
-                                      readings and prediction history;
-                                      model artifacts are stored
-                                      separately.
-  -----------------------------------------------------------------------
 
 ## Technology Stack
 
-  -----------------------------------------------------------------------
-  Technology                          Purpose
-  ----------------------------------- -----------------------------------
-  Flutter / Dart                      Mobile user interface.
+  | Technology | Purpose |
+|---|---|
+| Flutter / Dart | Mobile user interface. |
+| Python | Data preparation, feature engineering, and backend integration. |
+| FastAPI | REST API endpoints. |
+| Random Forest | Saved models used by the current prediction prototype. |
+| pandas / NumPy | Dataset processing and numerical feature preparation. |
+| scikit-learn | Machine-learning utilities and model processing. |
+| joblib / `.pkl` files | Loading and reusing trained model artifacts. |
+| Firebase Firestore | Saving and retrieving readings and predictions. |
+| Swagger UI / Postman | API testing. |
+| Virtual sensor CSV replay | Simulated readings for Auto mode. |
 
-  Python                              Data preparation, feature
-                                      engineering, and backend
-                                      integration.
-
-  FastAPI                             REST API endpoints.
-
-  Random Forest                       Saved models used by the current
-                                      prediction prototype.
-
-  pandas / NumPy                      Dataset processing and numerical
-                                      feature preparation.
-
-  scikit-learn                        Machine-learning utilities and
-                                      model processing.
-
-  joblib / `.pkl` files               Loading and reusing trained model
-                                      artifacts.
-
-  Firebase Firestore                  Saving and retrieving readings and
-                                      predictions.
-
-  Swagger UI / Postman                API testing.
-
-  Virtual sensor CSV replay           Simulated readings for Auto mode.
-  -----------------------------------------------------------------------
-
-**Algorithm note:** the saved model artifacts used by the current
-prototype are Random Forest models. Do not describe the deployed model
-as XGBoost unless the saved artifacts and metadata confirm that.
 
 ## Inputs
 
