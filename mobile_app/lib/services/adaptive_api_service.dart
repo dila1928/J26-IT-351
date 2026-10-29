@@ -5,7 +5,7 @@ import 'package:bell_pepper_app/config/api_config.dart';
 import 'package:bell_pepper_app/features/adaptive_recovery/models/recovery_plan.dart';
 
 /// Thin wrapper around the unified backend's `/adaptive/generate-recovery-plan`
-/// endpoint (unified-backend/app/routes/adaptive.py), so screens depend on
+/// end point (unified-backend/app/routes/adaptive.py), so screens depend on
 /// this instead of the `http` package directly.
 class AdaptiveApiService {
   AdaptiveApiService({http.Client? client}) : _client = client ?? http.Client();

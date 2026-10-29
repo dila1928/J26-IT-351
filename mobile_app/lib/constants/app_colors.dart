@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Centralized color palette for the app. Keeping colors here (instead of
 /// hardcoding hex values in widgets) keeps the UI consistent and makes
-/// re-theming a one-file change.
+/// re-Theming a one-file change.
 class AppColors {
   AppColors._();
 
