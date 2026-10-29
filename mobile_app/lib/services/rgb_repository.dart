@@ -1,0 +1,52 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:bell_pepper_app/models/rgb_result.dart';
+
+/// Thin wrapper around the `users/{uid}/rgb_results` Firestore subcollection
+/// so screens depend on this instead of the Firestore SDK directly. Saving
+/// happens on the mobile app side - the backend only predicts, it never
+/// persists anything itself.
+class RgbRepository {
+  RgbRepository({FirebaseFirestore? firestore})
+    : _firestore = firestore ?? FirebaseFirestore.instance;
+
+  final FirebaseFirestore _firestore;
+
+  CollectionReference<Map<String, dynamic>> _results(String uid) =>
+      _firestore.collection('users').doc(uid).collection('rgb_results');
+
+  Future<void> saveResult(String uid, RgbResult result) {
+    return _results(uid).add(result.toMap());
+  }
+
+  Future<List<RgbResult>> getResults(String uid) async {
+    final snapshot = await _results(uid).orderBy('createdAt', descending: true).get();
+    return snapshot.docs.map((doc) => RgbResult.fromMap(doc.data(), id: doc.id)).toList();
+  }
+
+  Future<RgbResult?> getLatestResult(String uid) async {
+    // Force a server round-trip rather than the local cache: a result saved
+    // moments ago may still have `createdAt` written via
+    // FieldValue.serverTimestamp(), which only resolves once Firestore
+    // confirms the write server-side. Reading from cache before that
+    // happens can return a doc with a null/missing createdAt (sorted behind
+    // older, already-resolved docs), which then gets excluded by the
+    // date-matching logic as "not today" even though it really is today's
+    // scan.
+    final snapshot = await _results(uid)
+        .orderBy('createdAt', descending: true)
+        .limit(1)
+        .get(const GetOptions(source: Source.server));
+    if (snapshot.docs.isEmpty) return null;
+    return RgbResult.fromMap(snapshot.docs.first.data(), id: snapshot.docs.first.id);
+  }
+
+  /// Marks a saved result as forwarded to Adaptive Recovery. Called right
+  /// after a recovery plan is successfully generated using this doc as one
+  /// of its inputs.
+  Future<void> markSentToRecovery(String uid, String id) {
+    return _results(uid).doc(id).update({
+      'sentToRecovery': true,
+      'sentToRecoveryAt': FieldValue.serverTimestamp(),
+    });
+  }
+}
