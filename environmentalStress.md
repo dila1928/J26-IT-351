@@ -99,26 +99,15 @@ flowchart TD
 
 ## Inputs
 
-  -------------------------------------------------------------------------
-  Input                     Description             Unit / format
-  ------------------------- ----------------------- -----------------------
-  `timestamp`               Time associated with    ISO date-time string
-                            the reading             
-
-  `growth_stage`            Current bell pepper     Text category
-                            growth stage            
-
-  `air_temperature_c`       Air temperature         °C
-
-  `relative_humidity_pct`   Relative humidity       \%
-
-  `light_intensity_lux`     Light intensity         lux
-
-  `soil_temperature_c`      Soil temperature        °C
-
-  `historical_context`      Optional previous       List of readings
-                            readings                
-  -------------------------------------------------------------------------
+| Input | Description | Unit / format |
+|---|---|---|
+| `timestamp` | Time associated with the reading | ISO date-time string |
+| `growth_stage` | Current bell pepper growth stage | Text category |
+| `air_temperature_c` | Air temperature | °C |
+| `relative_humidity_pct` | Relative humidity | % |
+| `light_intensity_lux` | Light intensity | lux |
+| `soil_temperature_c` | Soil temperature | °C |
+| `historical_context` | Optional previous readings | List of readings |
 
 The feature pipeline also creates historical and time-related features,
 including lagged readings, rolling statistics, and time encodings.
@@ -127,19 +116,19 @@ including lagged readings, rolling statistics, and time encodings.
 
 The future-prediction API can return:
 
--   `stress_type` --- predicted environmental stress category.
--   `risk_30m` --- risk level and score for 30 minutes.
--   `risk_60m` --- risk level and score for 60 minutes.
--   `main_contributing_factors` --- environmental factors associated
+-   `stress_type` -> predicted environmental stress category.
+-   `risk_30m` -> risk level and score for 30 minutes.
+-   `risk_60m` -> risk level and score for 60 minutes.
+-   `main_contributing_factors` -> environmental factors associated
     with the result.
--   `explanation` --- explanation of the predicted risk.
--   `current_environment` --- readings used for prediction.
--   `model_version` --- model version recorded by the backend.
--   `recovery_handoff` --- structured information prepared for the
+-   `explanation` -> explanation of the predicted risk.
+-   `current_environment` -> readings used for prediction.
+-   `model_version` -> model version recorded by the backend.
+-   `recovery_handoff` -> structured information prepared for the
     Adaptive Recovery workflow.
--   `data_source_mode` --- identifies the data-source mode.
+-   `data_source_mode` -> identifies the data-source mode.
 
-Current-environment assessment is rule-based and separate from the
+Current environment assessment is rule-based and separate from the
 future ML prediction.
 
 ## Model and Dataset Details
@@ -157,53 +146,43 @@ future ML prediction.
 The recorded split files contain 4,031 training records, 864 validation
 records, and 863 test records.
 
-### Recorded Prototype Evaluation Metrics
 
-These values were recorded in the model metadata. They are prototype
-metrics, not proof of real-world greenhouse accuracy.
+## Recorded Prototype Evaluation Metrics
 
-  Metric                         30 minutes   60 minutes
-  ---------------------------- ------------ ------------
-  Stress-type accuracy               69.87%       68.02%
-  Stress-type macro F1-score          0.528        0.387
-  Risk-level accuracy                96.41%       95.02%
-  Risk-level macro F1-score           0.872        0.834
-  Risk-score MAE                       4.49         5.09
+These values were recorded in the model metadata. 
 
-Accuracy should be interpreted alongside macro F1-score and the label
-distribution. Stronger evaluation requires an untouched test set and
-independent validation against observed greenhouse outcomes.
+| Metric | 30 minutes | 60 minutes |
+|---|---:|---:|
+| Stress-type accuracy | 69.87% | 68.02% |
+| Stress-type macro F1-score | 0.528 | 0.387 |
+| Risk-level accuracy | 96.41% | 95.02% |
+| Risk-level macro F1-score | 0.872 | 0.834 |
+| Risk-score MAE | 4.49 | 5.09 |
+
 
 ## API Endpoints
 
 ### Integrated unified backend
 
-  ------------------------------------------------------------------------------------
-  Method                  Endpoint                             Purpose
-  ----------------------- ------------------------------------ -----------------------
-  `GET`                   `/environmental/health`              Checks whether model
-                                                               artifacts are loaded.
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/environmental/health` | Checks whether model artifacts are loaded. |
+| `POST` | `/environmental/auto-log` | Retrieves and saves the next simulated reading. |
+| `POST` | `/environmental/check-environment` | Assesses current environmental readings. |
+| `POST` | `/environmental/predict` | Generates 30- and 60-minute predictions. |
 
-  `POST`                  `/environmental/auto-log`            Retrieves and saves the
-                                                               next simulated reading.
-
-  `POST`                  `/environmental/check-environment`   Assesses current
-                                                               environmental readings.
-
-  `POST`                  `/environmental/predict`             Generates 30- and
-                                                               60-minute predictions.
-  ------------------------------------------------------------------------------------
 
 ### Standalone model API
 
-  Method   Endpoint               Purpose
-  -------- ---------------------- -------------------------------
-  `GET`    `/health`              Checks model readiness.
-  `POST`   `/check-environment`   Assesses current readings.
-  `POST`   `/predict`             Generates future predictions.
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/health` | Checks model readiness. |
+| `POST` | `/check-environment` | Assesses current readings. |
+| `POST` | `/predict` | Generates future predictions. |
 
-The standalone service uses root-level paths; the unified backend adds
+The standalone service uses root-level paths, the unified backend adds
 the `/environmental` prefix.
+
 
 ### Example prediction request
 
@@ -217,6 +196,7 @@ the `/environmental` prefix.
   "soil_temperature_c": 30.0
 }
 ```
+
 
 ## Run the Standalone API on Windows
 
@@ -254,8 +234,8 @@ If PowerShell blocks activation, run
 terminal and activate again.
 
 **Testing versus retraining** - To test predictions, start `app.py` with
-Uvicorn; it loads existing model artifacts. - To retrain, run
-`python train.py` only when retraining is intended. Back up existing
+Uvicorn, it loads existing model artifacts. 
+- To retrain, run `python train.py` only when retraining is intended. Back up existing
 artifacts first because the training script may replace model files.
 
 ## Firestore Storage
@@ -273,45 +253,9 @@ The backend Auto mode writes simulated readings to:
 environmental_auto_readings
 ```
 
-## Limitations and Future Work
-
-### Current limitations
-
--   The training targets use derived/synthetic prototype labels, not
-    confirmed plant-stress observations.
--   Auto mode uses simulated replay data rather than physical sensors.
--   Results may vary across greenhouses, cultivars, growth stages, and
-    data distributions.
--   Recorded metrics require stronger independent validation before
-    real-world reliability claims.
--   Predictions should be reviewed alongside greenhouse observations and
-    expert advice.
-
-### Future improvements
-
--   Validate and retrain with real greenhouse observations and verified
-    labels.
--   Use an untouched test set and suitable time-aware validation.
--   Evaluate model calibration and performance across growth stages.
--   Integrate physical sensors when hardware becomes available.
--   Complete and test the Adaptive Recovery handoff.
--   Improve monitoring, error handling, and model-version tracking.
-
-## Security
-
--   Do not commit Firebase service-account JSON keys, API secrets, or
-    credentials to GitHub.
--   Keep credentials outside source control and use environment
-    variables or an appropriate secrets-management mechanism.
--   Configure Firestore security rules so users can access only
-    authorized records.
-
 ## Summary
 
 The Environmental Stress Prediction component combines a Flutter mobile
-interface, a FastAPI backend, rule-based current-environment assessment,
-and Random Forest models for 30-minute and 60-minute risk prediction.
-Firebase Firestore supports saved readings and prediction history. This
-is a research prototype and requires validation using real greenhouse
-observations before its predictions can be treated as confirmed
-plant-stress outcomes.
+interface, a FastAPI backend, rule based current environment assessment,
+and Random Forest models for 30 minute and 60 minute risk prediction.
+Firebase Firestore supports saved readings and prediction history.
